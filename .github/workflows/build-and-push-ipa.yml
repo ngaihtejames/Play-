@@ -20,7 +20,7 @@ jobs:
 
       - name: Build iOS app
         run: |
-          xcodebuild -project ./Source/ui_ios/Play.xcodeproj \
+          xcodebuild -project ./projects/iOS/Play.xcodeproj \
             -scheme Play \
             -configuration Release \
             -sdk iphoneos \
