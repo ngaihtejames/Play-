@@ -1,0 +1,46 @@
+name: Build and Push Play! IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          brew install cmake ninja || true
+
+      - name: Build IPA
+        working-directory: installer_ios
+        run: |
+          chmod +x build_ipa.sh
+          ./build_ipa.sh
+
+      - name: Configure Git user
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Commit built IPA
+        run: |
+          mkdir -p release
+          cp installer_ios/build/*.ipa release/
+
+          git add release/*.ipa
+          git commit -m "Add built Play! IPA [skip ci]" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
